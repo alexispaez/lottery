@@ -32,6 +32,11 @@ procedure Lottery is
      Ada.Containers.Ordered_Sets
        (Element_Type =>  Primitiva_Number_Range);
 
+   --  Loteria Nacional
+   subtype Loteria_Nacional_Number_Range is Integer range 0 .. 99999;
+   package Random_Loteria_Nacional_Number is new
+     Ada.Numerics.Discrete_Random (Loteria_Nacional_Number_Range);
+
    --  Helpers
    package Int_Fmt renames Integer_Formatting;
 
@@ -46,6 +51,9 @@ procedure Lottery is
    Primi_Num_G : Random_Primitiva_Number.Generator;
    Primi_Num_Set : Primitiva_Number_Sets.Set;
    Primi_Num_C : Primitiva_Number_Sets.Cursor;
+
+   Lot_Nal_G : Random_Loteria_Nacional_Number.Generator;
+   Lot_Nal_Num : Loteria_Nacional_Number_Range;
 
    Inserted : Boolean;
    Counter : Integer;
@@ -102,7 +110,6 @@ begin
    end loop;
    Ada.Text_IO.New_Line;
 
-
    Ada.Text_IO.Put ("Primitiva numbers: ");
 
    --  Generate the numbers
@@ -129,4 +136,14 @@ begin
    end loop;
    Ada.Text_IO.New_Line;
 
+   Ada.Text_IO.Put ("Loteria nacional numbers: ");
+
+   --  Generate the numbers
+   Random_Loteria_Nacional_Number.Reset (Lot_Nal_G);
+   Ada.Text_IO.Put ("For Thursday: ");
+   Lot_Nal_Num := Random_Loteria_Nacional_Number.Random (Lot_Nal_G);
+   Ada.Text_IO.Put (Int_Fmt.Format (Lot_Nal_Num'Image, 5));
+   Ada.Text_IO.Put ("For Saturday: ");
+   Lot_Nal_Num := Random_Loteria_Nacional_Number.Random (Lot_Nal_G);
+   Ada.Text_IO.Put (Int_Fmt.Format (Lot_Nal_Num'Image, 5));
 end Lottery;
