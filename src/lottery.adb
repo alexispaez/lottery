@@ -1,8 +1,6 @@
 pragma Ada_2022;
 
-with Ada.Numerics.Discrete_Random;
 with Ada.Text_IO;
-with Integer_Formatting;
 with Discrete_Random_Number_Sets;
 
 procedure Lottery is
@@ -23,25 +21,21 @@ procedure Lottery is
 
    --  Loteria Nacional
    subtype Loteria_Nacional_Number_Range is Integer range 0 .. 99999;
-   package Random_Loteria_Nacional_Number is new
-     Ada.Numerics.Discrete_Random (Loteria_Nacional_Number_Range);
 
-   --  Helpers
-   package Int_Fmt renames Integer_Formatting;
+   package Loteria_Nacional_Number_Sets is new
+     Discrete_Random_Number_Sets (Loteria_Nacional_Number_Range, 1);
 
-   Lot_Nal_G : Random_Loteria_Nacional_Number.Generator;
-   Lot_Nal_Num : Loteria_Nacional_Number_Range;
+   Euro_Num_Set : Euromillon_Number_Sets.Set;
+   Euro_Star_Set : Euromillon_Star_Sets.Set;
 
-   Euro_Num_Set : Euromillon_Number_Sets.Number_Sets.Set;
-   Euro_Star_Set : Euromillon_Star_Sets.Number_Sets.Set;
+   Primi_Num_Set : Primitiva_Number_Sets.Set;
 
-   Primi_Num_Set : Primitiva_Number_Sets.Number_Sets.Set;
+   Lot_Nac_Num_Set : Loteria_Nacional_Number_Sets.Set;
 begin
    --  Generate Euromillon numbers
    Ada.Text_IO.Put ("Euromillon numbers: ");
    Euro_Num_Set := Euromillon_Number_Sets.Generate;
    Euromillon_Number_Sets.Put (Euro_Num_Set, 2);
-
    --  Generate Euromillon stars
    Ada.Text_IO.Put ("Euromillon stars: ");
    Euro_Star_Set := Euromillon_Star_Sets.Generate;
@@ -52,14 +46,12 @@ begin
    Primi_Num_Set := Primitiva_Number_Sets.Generate;
    Primitiva_Number_Sets.Put (Primi_Num_Set, 2);
 
+   --  Generate Loteria Nacional numbers
    Ada.Text_IO.Put_Line ("Loteria nacional numbers: ");
-
-   --  Generate the numbers
-   Random_Loteria_Nacional_Number.Reset (Lot_Nal_G);
    Ada.Text_IO.Put ("For Thursday: ");
-   Lot_Nal_Num := Random_Loteria_Nacional_Number.Random (Lot_Nal_G);
-   Ada.Text_IO.Put_Line (Int_Fmt.Format (Lot_Nal_Num'Image, 5));
+   Lot_Nac_Num_Set := Loteria_Nacional_Number_Sets.Generate;
+   Loteria_Nacional_Number_Sets.Put (Lot_Nac_Num_Set, 5);
    Ada.Text_IO.Put ("For Saturday: ");
-   Lot_Nal_Num := Random_Loteria_Nacional_Number.Random (Lot_Nal_G);
-   Ada.Text_IO.Put (Int_Fmt.Format (Lot_Nal_Num'Image, 5));
+   Lot_Nac_Num_Set := Loteria_Nacional_Number_Sets.Generate;
+   Loteria_Nacional_Number_Sets.Put (Lot_Nac_Num_Set, 5);
 end Lottery;
