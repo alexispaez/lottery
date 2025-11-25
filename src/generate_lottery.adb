@@ -5,13 +5,9 @@ with Ada.Text_IO;
 
 with Discrete_Random_Number_Sets;
 with Lottery; use Lottery;
-with Lottery.Validation;
+with Lottery.Validation; use Lottery.Validation;
 
 procedure Generate_Lottery is
-
-   package Lottery_Number_Sets is new
-     Ada.Containers.Ordered_Sets
-       (Element_Type =>  Lottery_Number);
 
    --  Euromillon
    subtype Euromillon_Number_Range is Lottery_Number range 1 .. 50;
@@ -23,8 +19,54 @@ procedure Generate_Lottery is
 
    function Euromillon_Number_Validate
      (Set : Euromillon_Number_Sets.Set) return Boolean is
+
+      function Validate_Odd_Even (Set : Euromillon_Number_Sets.Set)
+                                  return Boolean is
+         Even : Natural := 0;
+         Odd  : Natural := 0;
+      begin
+         for E of Set loop
+            if Is_Odd (E) then
+               Odd := @ + 1;
+            else
+               Even := @ + 1;
+            end if;
+         end loop;
+
+         return (if (Odd = 3 and then Even = 2) or else
+                   (Odd = 2 and then Even = 3) then True else False);
+      end Validate_Odd_Even;
+
+      function Validate_High_Low (Set : Euromillon_Number_Sets.Set)
+                                  return Boolean is
+         subtype Euromillon_Number_Low is
+           Euromillon_Number_Range range 1 .. 25;
+
+         High : Natural := 0;
+         Low  : Natural := 0;
+      begin
+         for E of Set loop
+            if E in Euromillon_Number_Low then
+               Low := @ + 1;
+            else
+               High := @ + 1;
+            end if;
+         end loop;
+
+         return (if (Low = 3 and then High = 2) or else
+                   (Low = 2 and then High = 3) then True else False);
+      end Validate_High_Low;
+
+      function Validate_Sum (Set : Euromillon_Number_Sets.Set)
+                             return Boolean is
+         Sum : constant Natural := Set'Reduce ("+", 0);
+      begin
+         return (if Sum > 101 and then Sum < 160 then True else False);
+      end Validate_Sum;
    begin
-      return True;
+      return (Validate_Odd_Even (Set) and then
+              Validate_High_Low (Set) and then
+              Validate_Sum (Set));
    end Euromillon_Number_Validate;
 
    package Euromillon_Random_Number_Sets is new
@@ -42,6 +84,7 @@ procedure Generate_Lottery is
      (Set : Euromillon_Star_Sets.Set) return Boolean is
    begin
       --  Number set validation logic
+
       return True;
    end Euromillon_Star_Validate;
 
