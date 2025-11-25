@@ -1,4 +1,5 @@
 with Ada.Containers.Ordered_Sets;
+with Lottery;
 
 generic
    type Number_Range is (<>);

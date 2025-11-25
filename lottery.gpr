@@ -5,7 +5,7 @@ project Lottery is
    for Object_Dir use "obj/" & Lottery_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";
-   for Main use ("lottery.adb");
+   for Main use ("generate_lottery.adb");
 
    package Compiler is
       for Default_Switches ("Ada") use Lottery_Config.Ada_Compiler_Switches;

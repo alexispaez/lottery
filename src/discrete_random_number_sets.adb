@@ -31,7 +31,7 @@ package body Discrete_Random_Number_Sets is
 
          Counter := 0;
          while Counter < Num_Elements loop
-            Set.Insert (Random_Number.Random (Generator),
+            Set. Insert (Random_Number.Random (Generator),
                         Cursor,
                         Inserted);
             if Inserted then

@@ -1,14 +1,21 @@
 pragma Ada_2022;
 
 with Ada.Containers.Ordered_Sets;
-
 with Ada.Text_IO;
-with Discrete_Random_Number_Sets;
 
-procedure Lottery is
+with Discrete_Random_Number_Sets;
+with Lottery; use Lottery;
+with Lottery.Validation;
+
+procedure Generate_Lottery is
+
+   package Lottery_Number_Sets is new
+     Ada.Containers.Ordered_Sets
+       (Element_Type =>  Lottery_Number);
+
    --  Euromillon
-   subtype Euromillon_Number_Range is Integer range 1 .. 50;
-   subtype Euromillon_Star_Range is Integer range 1 .. 12;
+   subtype Euromillon_Number_Range is Lottery_Number range 1 .. 50;
+   subtype Euromillon_Star_Range is Lottery_Number range 1 .. 12;
 
    package Euromillon_Number_Sets is new
      Ada.Containers.Ordered_Sets
@@ -17,13 +24,7 @@ procedure Lottery is
    function Euromillon_Number_Validate
      (Set : Euromillon_Number_Sets.Set) return Boolean is
    begin
-      --  Number set validation logic
       return True;
-      --  if Set.First_Element = 5 then
-      --     return True;
-      --  else
-      --     return False;
-      --  end if;
    end Euromillon_Number_Validate;
 
    package Euromillon_Random_Number_Sets is new
@@ -52,7 +53,7 @@ procedure Lottery is
         Validate      => Euromillon_Star_Validate);
 
    --  Primitiva
-   subtype Primitiva_Number_Range is Integer range 1 .. 49;
+   subtype Primitiva_Number_Range is Lottery_Number range 1 .. 49;
 
    package Primitiva_Number_Sets is new
      Ada.Containers.Ordered_Sets
@@ -73,7 +74,7 @@ procedure Lottery is
         Validate      => Primitiva_Validate);
 
    --  Loteria Nacional
-   subtype Loteria_Nacional_Number_Range is Integer range 0 .. 99999;
+   subtype Loteria_Nacional_Number_Range is Lottery_Number range 0 .. 99999;
 
    package Loteria_Nacional_Number_Sets is new
      Ada.Containers.Ordered_Sets
@@ -122,4 +123,4 @@ begin
    Ada.Text_IO.Put ("For Saturday: ");
    Lot_Nac_Random_Num_Set := Loteria_Nacional_Random_Number_Sets.Generate;
    Loteria_Nacional_Random_Number_Sets.Put (Lot_Nac_Random_Num_Set, 5);
-end Lottery;
+end Generate_Lottery;
