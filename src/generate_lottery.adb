@@ -59,8 +59,12 @@ procedure Generate_Lottery is
 
       function Validate_Sum (Set : Euromillon_Number_Sets.Set)
                              return Boolean is
-         Sum : constant Natural := Set'Reduce ("+", 0);
+         Sum : Natural := 0;
       begin
+         for E of Set loop
+            Sum := @ + E;
+         end loop;
+
          return (if Sum > 101 and then Sum < 160 then True else False);
       end Validate_Sum;
    begin
