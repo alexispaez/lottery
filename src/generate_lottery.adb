@@ -1,134 +1,190 @@
 pragma Ada_2022;
 
-with Ada.Containers.Ordered_Sets;
 with Ada.Text_IO;
-
 with Discrete_Random_Number_Sets;
 with Lottery; use Lottery;
 with Lottery.Validation; use Lottery.Validation;
 
 procedure Generate_Lottery is
-
-   --  Euromillon
+   --  Euromillon numbers
+   --  ------------------
    subtype Euromillon_Number_Range is Lottery_Number range 1 .. 50;
-   subtype Euromillon_Star_Range is Lottery_Number range 1 .. 12;
 
-   package Euromillon_Number_Sets is new
-     Ada.Containers.Ordered_Sets
-       (Element_Type =>  Euromillon_Number_Range);
+   function Euromillon_Number_Validate (Num_Array : Num_Arrays)
+                                        return Boolean is
 
-   function Euromillon_Number_Validate
-     (Set : Euromillon_Number_Sets.Set) return Boolean is
-
-      function Validate_Odd_Even (Set : Euromillon_Number_Sets.Set)
+      function Validate_Odd_Even (Num_Array : Num_Arrays)
                                   return Boolean is
-         Even : Natural := 0;
-         Odd  : Natural := 0;
+         Pair : constant Even_Odd_Pair :=
+           Get_Even_Odd (Num_Array => Num_Array);
       begin
-         for E of Set loop
-            if Is_Odd (E) then
-               Odd := @ + 1;
-            else
-               Even := @ + 1;
-            end if;
-         end loop;
-
-         return (if (Odd = 3 and then Even = 2) or else
-                   (Odd = 2 and then Even = 3) then True else False);
+         return (if Pair = Even_Odd_Pair'(3, 2) or else
+                   Pair = Even_Odd_Pair'(2, 3) then True else False);
       end Validate_Odd_Even;
 
-      function Validate_High_Low (Set : Euromillon_Number_Sets.Set)
-                                  return Boolean is
-         subtype Euromillon_Number_Low is
-           Euromillon_Number_Range range 1 .. 25;
-
-         High : Natural := 0;
-         Low  : Natural := 0;
+      function Validate_High_Low (Num_Array : Num_Arrays) return Boolean is
+         function Get_High_Low_Pair is new
+           Get_High_Low (Lower_Range_Start => 1,
+                         Lower_Range_End => 25,
+                         Higher_Range_Start => 26,
+                         Higher_Range_End => 50);
+         Pair : constant High_Low_Pair := Get_High_Low_Pair (Num_Array);
       begin
-         for E of Set loop
-            if E in Euromillon_Number_Low then
-               Low := @ + 1;
-            else
-               High := @ + 1;
-            end if;
-         end loop;
-
-         return (if (Low = 3 and then High = 2) or else
-                   (Low = 2 and then High = 3) then True else False);
+         return (if Pair = High_Low_Pair'(3, 2) or else
+                 Pair = High_Low_Pair'(2, 3) then True else False);
       end Validate_High_Low;
 
-      function Validate_Sum (Set : Euromillon_Number_Sets.Set)
-                             return Boolean is
-         Sum : Natural := 0;
+      function Validate_Sum (Num_Array : Num_Arrays) return Boolean is
+         Sum : constant Natural := Get_Sum (Num_Array => Num_Array);
       begin
-         for E of Set loop
-            Sum := @ + E;
-         end loop;
-
          return (if Sum > 101 and then Sum < 160 then True else False);
       end Validate_Sum;
+
+      function Validate_Consecutive_Runs (Num_Array : Num_Arrays)
+                                          return Boolean is
+         Runs : constant Run_Arrays :=
+           Get_Consecutive_Runs (Num_Array => Num_Array);
+      begin
+         return (if Runs /= Run_Arrays'(0, 5) and then
+                 Runs /= Run_Arrays'(1, 4) and then
+                 Runs /= Run_Arrays'(2, 3)
+                 then True else False);
+      end Validate_Consecutive_Runs;
+
    begin
-      return (Validate_Odd_Even (Set) and then
-              Validate_High_Low (Set) and then
-              Validate_Sum (Set));
+      if Validate_Odd_Even (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by odd/even.");
+         return False;
+      end if;
+
+      if Validate_High_Low (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by high/low.");
+         return False;
+      end if;
+
+      if Validate_Sum (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by sum.");
+         return False;
+      end if;
+
+      if Validate_Consecutive_Runs (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by runs.");
+         return False;
+      end if;
+
+      return True;
    end Euromillon_Number_Validate;
 
    package Euromillon_Random_Number_Sets is new
      Discrete_Random_Number_Sets
-       (Number_Range  => Euromillon_Number_Range,
-        Number_Sets   => Euromillon_Number_Sets,
+       (Number_Range_Start  => Euromillon_Number_Range'First,
+        Number_Range_End => Euromillon_Number_Range'Last,
         Num_Elements  => 5,
         Validate      => Euromillon_Number_Validate);
 
-   package Euromillon_Star_Sets is new
-     Ada.Containers.Ordered_Sets
-       (Element_Type =>  Euromillon_Star_Range);
+   --  Euromillon stars
+   --  ----------------
+   subtype Euromillon_Star_Range is Lottery_Number range 1 .. 12;
 
-   function Euromillon_Star_Validate
-     (Set : Euromillon_Star_Sets.Set) return Boolean is
+   function Euromillon_Star_Validate (Num_Array : Num_Arrays) return Boolean is
    begin
       --  Number set validation logic
-
-      return True;
+      return (if Num_Array'Length = 2 then True else False);
    end Euromillon_Star_Validate;
 
    package Euromillon_Random_Star_Sets is new
      Discrete_Random_Number_Sets
-       (Number_Range  => Euromillon_Star_Range,
-        Number_Sets   => Euromillon_Star_Sets,
+       (Number_Range_Start  => Euromillon_Star_Range'First,
+        Number_Range_End => Euromillon_Star_Range'Last,
         Num_Elements  => 2,
         Validate      => Euromillon_Star_Validate);
 
    --  Primitiva
+   --  ---------
    subtype Primitiva_Number_Range is Lottery_Number range 1 .. 49;
 
-   package Primitiva_Number_Sets is new
-     Ada.Containers.Ordered_Sets
-       (Element_Type =>  Primitiva_Number_Range);
+   function Primitiva_Validate (Num_Array : Num_Arrays)
+                                return Boolean is
 
-   function Primitiva_Validate
-     (Set : Primitiva_Number_Sets.Set) return Boolean is
+      function Validate_Odd_Even (Num_Array : Num_Arrays)
+                                  return Boolean is
+         Pair : constant Even_Odd_Pair :=
+           Get_Even_Odd (Num_Array => Num_Array);
+      begin
+         return (if Pair = Even_Odd_Pair'(4, 2) or else
+                 Pair = Even_Odd_Pair'(3, 3) or else
+                 Pair = Even_Odd_Pair'(2, 4) then True else False);
+      end Validate_Odd_Even;
+
+      function Validate_High_Low (Num_Array : Num_Arrays) return Boolean is
+         function Get_High_Low_Pair is new
+           Get_High_Low (Lower_Range_Start => 1,
+                         Lower_Range_End => 25,
+                         Higher_Range_Start => 26,
+                         Higher_Range_End => 49);
+         Pair : constant High_Low_Pair := Get_High_Low_Pair (Num_Array);
+      begin
+         return (if Pair = High_Low_Pair'(4, 2) or else
+                 Pair = High_Low_Pair'(3, 3) or else
+                 Pair = High_Low_Pair'(2, 4) then True else False);
+      end Validate_High_Low;
+
+      function Validate_Sum (Num_Array : Num_Arrays) return Boolean is
+         Sum : constant Natural := Get_Sum (Num_Array => Num_Array);
+      begin
+         return (if Sum > 101 and then Sum < 200 then True else False);
+      end Validate_Sum;
+
+      function Validate_Consecutive_Runs (Num_Array : Num_Arrays)
+                                          return Boolean is
+         Runs : constant Run_Arrays :=
+           Get_Consecutive_Runs (Num_Array => Num_Array);
+      begin
+         return (if Runs /= Run_Arrays'(0, 6) and then
+                 Runs /= Run_Arrays'(1, 5) and then
+                 Runs /= Run_Arrays'(2, 4) and then
+                 Runs /= Run_Arrays'(1, 1, 4) and then
+                 Runs /= Run_Arrays'(3, 3)
+                 then True else False);
+      end Validate_Consecutive_Runs;
+
    begin
-      --  Number set validation logic
+      if Validate_Odd_Even (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by odd/even.");
+         return False;
+      end if;
+
+      if Validate_High_Low (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by high/low,");
+         return False;
+      end if;
+
+      if Validate_Sum (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by sum.");
+         return False;
+      end if;
+
+      if Validate_Consecutive_Runs (Num_Array) = False then
+         Ada.Text_IO.Put_Line ("Combination rejected by runs.");
+         return False;
+      end if;
+
       return True;
    end Primitiva_Validate;
 
    package Primitiva_Random_Number_Sets is new
      Discrete_Random_Number_Sets
-       (Number_Range  => Primitiva_Number_Range,
-        Number_Sets   => Primitiva_Number_Sets,
+       (Number_Range_Start  => Primitiva_Number_Range'First,
+        Number_Range_End => Primitiva_Number_Range'Last,
         Num_Elements  => 6,
         Validate      => Primitiva_Validate);
 
    --  Loteria Nacional
-   subtype Loteria_Nacional_Number_Range is Lottery_Number range 0 .. 99999;
-
-   package Loteria_Nacional_Number_Sets is new
-     Ada.Containers.Ordered_Sets
-       (Element_Type =>  Loteria_Nacional_Number_Range);
+   subtype Loteria_Nacional_Number_Range is
+     Lottery_Number range 0 .. 99999;
 
    function Loteria_Nacional_Validate
-     (Set : Loteria_Nacional_Number_Sets.Set) return Boolean is
+     (Num_Array : Num_Arrays) return Boolean is
    begin
       --  Number set validation logic
       return True;
@@ -136,38 +192,41 @@ procedure Generate_Lottery is
 
    package Loteria_Nacional_Random_Number_Sets is new
      Discrete_Random_Number_Sets
-       (Number_Range  => Loteria_Nacional_Number_Range,
-        Number_Sets   => Loteria_Nacional_Number_Sets,
+       (Number_Range_Start  => Loteria_Nacional_Number_Range'First,
+        Number_Range_End => Loteria_Nacional_Number_Range'Last,
         Num_Elements  => 1,
         Validate      => Loteria_Nacional_Validate);
 
-   Euro_Random_Num_Set : Euromillon_Number_Sets.Set;
-   Euro_Random_Star_Set : Euromillon_Star_Sets.Set;
-
-   Primi_Random_Num_Set : Primitiva_Number_Sets.Set;
-
-   Lot_Nac_Random_Num_Set : Loteria_Nacional_Number_Sets.Set;
+   Euro_Random_Numbers : Num_Arrays (1 .. 5);
+   Euro_Random_Stars : Num_Arrays (1 .. 2);
+   Primi_Random_Numbers : Num_Arrays (1 .. 6);
+   Lot_Nac_Random_Numbers :  Num_Arrays (1 .. 1);
 begin
    --  Generate Euromillon numbers
+   Ada.Text_IO.Put_Line ("Generating Euromillon...");
+   Euro_Random_Numbers := Euromillon_Random_Number_Sets.Generate;
    Ada.Text_IO.Put ("Euromillon numbers: ");
-   Euro_Random_Num_Set := Euromillon_Random_Number_Sets.Generate;
-   Euromillon_Random_Number_Sets.Put (Euro_Random_Num_Set, 2);
+   Lottery.Put (Euro_Random_Numbers, 2);
+
    --  Generate Euromillon stars
+   Euro_Random_Stars := Euromillon_Random_Star_Sets.Generate;
    Ada.Text_IO.Put ("Euromillon stars: ");
-   Euro_Random_Star_Set := Euromillon_Random_Star_Sets.Generate;
-   Euromillon_Random_Star_Sets.Put (Euro_Random_Star_Set, 2);
+   Lottery.Put (Euro_Random_Stars, 2);
+   Ada.Text_IO.New_Line;
 
    --  Generate Primitiva numbers
+   Ada.Text_IO.Put_Line ("Generating Primitiva numbers...");
+   Primi_Random_Numbers := Primitiva_Random_Number_Sets.Generate;
    Ada.Text_IO.Put ("Primitiva numbers: ");
-   Primi_Random_Num_Set := Primitiva_Random_Number_Sets.Generate;
-   Primitiva_Random_Number_Sets.Put (Primi_Random_Num_Set, 2);
+   Lottery.Put (Primi_Random_Numbers, 2);
+   Ada.Text_IO.New_Line;
 
    --  Generate Loteria Nacional numbers
    Ada.Text_IO.Put_Line ("Loteria nacional numbers: ");
    Ada.Text_IO.Put ("For Thursday: ");
-   Lot_Nac_Random_Num_Set := Loteria_Nacional_Random_Number_Sets.Generate;
-   Loteria_Nacional_Random_Number_Sets.Put (Lot_Nac_Random_Num_Set, 5);
+   Lot_Nac_Random_Numbers := Loteria_Nacional_Random_Number_Sets.Generate;
+   Lottery.Put (Lot_Nac_Random_Numbers, 5);
    Ada.Text_IO.Put ("For Saturday: ");
-   Lot_Nac_Random_Num_Set := Loteria_Nacional_Random_Number_Sets.Generate;
-   Loteria_Nacional_Random_Number_Sets.Put (Lot_Nac_Random_Num_Set, 5);
+   Lot_Nac_Random_Numbers := Loteria_Nacional_Random_Number_Sets.Generate;
+   Lottery.Put (Lot_Nac_Random_Numbers, 5);
 end Generate_Lottery;
