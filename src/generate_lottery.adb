@@ -197,10 +197,29 @@ procedure Generate_Lottery is
         Num_Elements  => 1,
         Validate      => Loteria_Nacional_Validate);
 
+   --  Special draw
+   subtype Special_Number_Range is
+     Lottery_Number range 1 .. 7840;
+
+   function Special_Validate
+     (Num_Array : Num_Arrays) return Boolean is
+   begin
+      --  Number set validation logic
+      return True;
+   end Special_Validate;
+
+   package Special_Random_Number_Sets is new
+     Discrete_Random_Number_Sets
+       (Number_Range_Start  => Special_Number_Range'First,
+        Number_Range_End => Special_Number_Range'Last,
+        Num_Elements  => 1,
+        Validate      => Special_Validate);
+
    Euro_Random_Numbers : Num_Arrays (1 .. 5);
    Euro_Random_Stars : Num_Arrays (1 .. 2);
    Primi_Random_Numbers : Num_Arrays (1 .. 6);
    Lot_Nac_Random_Numbers :  Num_Arrays (1 .. 1);
+   Special_Random_Numbers :  Num_Arrays (1 .. 1);
 begin
    --  Generate Euromillon numbers
    Ada.Text_IO.Put_Line ("Generating Euromillon...");
@@ -220,6 +239,7 @@ begin
    Ada.Text_IO.Put ("Primitiva numbers: ");
    Lottery.Put (Primi_Random_Numbers, 2);
    Ada.Text_IO.New_Line;
+   --  TODO: generate reintegro
 
    --  Generate Loteria Nacional numbers
    Ada.Text_IO.Put_Line ("Loteria nacional numbers: ");
@@ -229,4 +249,10 @@ begin
    Ada.Text_IO.Put ("For Saturday: ");
    Lot_Nac_Random_Numbers := Loteria_Nacional_Random_Number_Sets.Generate;
    Lottery.Put (Lot_Nac_Random_Numbers, 5);
+
+   --  Generate Special numbers
+   Ada.Text_IO.Put_Line ("Loteria nacional special: ");
+   Special_Random_Numbers := Special_Random_Number_Sets.Generate;
+   Lottery.Put (Special_Random_Numbers, 5);
+
 end Generate_Lottery;
