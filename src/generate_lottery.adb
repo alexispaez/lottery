@@ -99,8 +99,8 @@ procedure Generate_Lottery is
         Num_Elements  => 2,
         Validate      => Euromillon_Star_Validate);
 
-   --  Primitiva
-   --  ---------
+   --  Primitiva numbers
+   --  -----------------
    subtype Primitiva_Number_Range is Lottery_Number range 1 .. 49;
 
    function Primitiva_Validate (Num_Array : Num_Arrays)
@@ -175,16 +175,37 @@ procedure Generate_Lottery is
    package Primitiva_Random_Number_Sets is new
      Discrete_Random_Number_Sets
        (Number_Range_Start  => Primitiva_Number_Range'First,
-        Number_Range_End => Primitiva_Number_Range'Last,
-        Num_Elements  => 6,
-        Validate      => Primitiva_Validate);
+        Number_Range_End    => Primitiva_Number_Range'Last,
+        Num_Elements        => 6,
+        Validate            => Primitiva_Validate);
+
+   --  Primitiva refund
+   --  ----------------
+   subtype Primitiva_Refund_Range is Lottery_Number range 0 .. 9;
+
+   function Primitiva_Refund_Validate
+     (Num_Array : Num_Arrays) return Boolean is
+      pragma Unreferenced (Num_Array);
+   begin
+      --  Number set validation logic
+      return True;
+   end Primitiva_Refund_Validate;
+
+   package Primitiva_Random_Refund_Sets is new
+     Discrete_Random_Number_Sets
+       (Number_Range_Start  => Primitiva_Refund_Range'First,
+        Number_Range_End    => Primitiva_Refund_Range'Last,
+        Num_Elements        => 1,
+        Validate            => Primitiva_Refund_Validate);
 
    --  Loteria Nacional
+   --  ----------------
    subtype Loteria_Nacional_Number_Range is
      Lottery_Number range 0 .. 99999;
 
    function Loteria_Nacional_Validate
      (Num_Array : Num_Arrays) return Boolean is
+      pragma Unreferenced (Num_Array);
    begin
       --  Number set validation logic
       return True;
@@ -203,6 +224,7 @@ procedure Generate_Lottery is
 
    function Special_Validate
      (Num_Array : Num_Arrays) return Boolean is
+      pragma Unreferenced (Num_Array);
    begin
       --  Number set validation logic
       return True;
@@ -216,8 +238,11 @@ procedure Generate_Lottery is
         Validate      => Special_Validate);
 
    Euro_Random_Numbers : Num_Arrays (1 .. 5);
-   Euro_Random_Stars : Num_Arrays (1 .. 2);
+   Euro_Random_Stars   : Num_Arrays (1 .. 2);
+
    Primi_Random_Numbers : Num_Arrays (1 .. 6);
+   Primi_Random_Refund  : Num_Arrays (1 .. 1);
+
    Lot_Nac_Random_Numbers :  Num_Arrays (1 .. 1);
    Special_Random_Numbers :  Num_Arrays (1 .. 1);
 begin
@@ -238,8 +263,11 @@ begin
    Primi_Random_Numbers := Primitiva_Random_Number_Sets.Generate;
    Ada.Text_IO.Put ("Primitiva numbers: ");
    Lottery.Put (Primi_Random_Numbers, 2);
+   --  Generate refund number
+   Primi_Random_Refund := Primitiva_Random_Refund_Sets.Generate;
+   Ada.Text_IO.Put ("Primitiva refund: ");
+   Lottery.Put (Primi_Random_Refund, 1);
    Ada.Text_IO.New_Line;
-   --  TODO: generate reintegro
 
    --  Generate Loteria Nacional numbers
    Ada.Text_IO.Put_Line ("Loteria nacional numbers: ");
@@ -249,6 +277,7 @@ begin
    Ada.Text_IO.Put ("For Saturday: ");
    Lot_Nac_Random_Numbers := Loteria_Nacional_Random_Number_Sets.Generate;
    Lottery.Put (Lot_Nac_Random_Numbers, 5);
+   Ada.Text_IO.New_Line;
 
    --  Generate Special numbers
    Ada.Text_IO.Put_Line ("Loteria nacional special: ");
