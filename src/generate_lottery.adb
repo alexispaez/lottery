@@ -220,7 +220,7 @@ procedure Generate_Lottery is
 
    --  Special draw
    subtype Special_Number_Range is
-     Lottery_Number range 1 .. 7840;
+     Lottery_Number range 1 .. 57041;
 
    function Special_Validate
      (Num_Array : Num_Arrays) return Boolean is
